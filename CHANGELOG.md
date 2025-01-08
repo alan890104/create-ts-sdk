@@ -1,5 +1,11 @@
 # create-ts-sdk
 
+## 1.0.1
+
+### Patch Changes
+
+- 0e01abc: The script itself can accept parameters. If no parameter (SDK Name) is provided, it will use an interactive interface.
+
 ## 1.0.0
 
 ### Major Changes
