@@ -1,6 +1,6 @@
 {
   "name": "create-ts-sdk",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Create typescript SDK for frontend and backend",
   "packageManager": "pnpm@10.0.0",
   "engines": {
