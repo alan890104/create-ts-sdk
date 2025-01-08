@@ -29,7 +29,12 @@ const copyTemplate = (srcDir: string, destDir: string, sdkName: string) => {
   const entries = fs.readdirSync(srcDir, { withFileTypes: true });
   for (const entry of entries) {
     const srcPath = path.join(srcDir, entry.name);
-    const destPath = path.join(destDir, entry.name);
+    let destPath = path.join(destDir, entry.name);
+
+    // Special handling for .gitignore
+    if (entry.name === 'gitignore.template') {
+      destPath = path.join(destDir, '.gitignore');
+    }
 
     if (entry.isDirectory()) {
       copyTemplate(srcPath, destPath, sdkName); // Recursive call for directories
