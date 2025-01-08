@@ -32,7 +32,6 @@
     "prepare": "husky"
   },
   "publishConfig": {
-    "provenance": true,
     "access": "public",
     "registry": "https://registry.npmjs.org/"
   },
