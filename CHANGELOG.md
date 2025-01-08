@@ -1,5 +1,11 @@
 # create-ts-sdk
 
+## 1.0.2
+
+### Patch Changes
+
+- b5396ca: Rename gitignore to gitignore.template, prevent it from ignoring by fs
+
 ## 1.0.1
 
 ### Patch Changes
