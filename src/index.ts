@@ -42,18 +42,34 @@ const copyTemplate = (srcDir: string, destDir: string, sdkName: string) => {
   }
 };
 
+// Main function
 const main = async () => {
-  const { sdkName } = await inquirer.prompt([
-    {
-      type: 'input',
-      name: 'sdkName',
-      message: 'Enter the SDK name:',
-      validate: (input) =>
-        /^[a-zA-Z0-9-_]+$/.test(input) ? true : 'Invalid name. Use only letters, numbers, dashes, and underscores.',
-    },
-  ]);
+  // Check if SDK name is provided via command line arguments
+  const args = process.argv.slice(2);
+  let sdkName: string;
 
-  const projectName = `${sdkName}-sdk`;
+  if (args.length > 0 && args[0]) {
+    // Use the first argument as the SDK name
+    sdkName = args[0];
+    if (!/^[a-zA-Z0-9-_]+$/.test(sdkName)) {
+      console.error(chalk.red('Invalid SDK name. Use only letters, numbers, dashes, and underscores.'));
+      process.exit(1);
+    }
+  } else {
+    // Prompt for SDK name if not provided
+    const answers = await inquirer.prompt([
+      {
+        type: 'input',
+        name: 'sdkName',
+        message: 'Enter the SDK name:',
+        validate: (input) =>
+          /^[a-zA-Z0-9-_]+$/.test(input) ? true : 'Invalid name. Use only letters, numbers, dashes, and underscores.',
+      },
+    ]);
+    sdkName = answers.sdkName;
+  }
+
+  const projectName = `${sdkName}`;
   const targetDir = path.resolve(process.cwd(), projectName);
 
   if (fs.existsSync(targetDir)) {

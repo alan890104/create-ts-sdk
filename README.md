@@ -7,3 +7,9 @@ This package is designed to help developers effortlessly create a TypeScript SDK
 ```bash
 npx create-ts-sdk <Your SDK Name>
 ```
+
+For example, if you want to create a SDK named `foo-sdk`, you can run:
+
+```bash
+npx create-ts-sdk foo-sdk
+```

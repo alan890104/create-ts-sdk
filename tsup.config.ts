@@ -4,7 +4,6 @@ export default defineConfig({
   entry: ['src/index.ts'],
   outDir: 'dist',
   format: ['esm'],
-  dts: true,
   sourcemap: true,
   clean: true,
   onSuccess: 'cp -R template dist/',
