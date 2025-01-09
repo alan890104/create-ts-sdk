@@ -21,8 +21,8 @@ const runCommand = (command: string, cwd: string = process.cwd()) => {
   }
 };
 
-// Copy directory recursively with placeholder replacement
-const copyTemplate = (srcDir: string, destDir: string, sdkName: string) => {
+// Copy template files and replace placeholders
+const copyTemplate = (srcDir: string, destDir: string, fullName: string) => {
   if (!fs.existsSync(destDir)) {
     fs.mkdirSync(destDir, { recursive: true });
   }
@@ -31,50 +31,64 @@ const copyTemplate = (srcDir: string, destDir: string, sdkName: string) => {
     const srcPath = path.join(srcDir, entry.name);
     let destPath = path.join(destDir, entry.name);
 
-    // Special handling for .gitignore
     if (entry.name === 'gitignore.template') {
       destPath = path.join(destDir, '.gitignore');
     }
 
     if (entry.isDirectory()) {
-      copyTemplate(srcPath, destPath, sdkName); // Recursive call for directories
+      copyTemplate(srcPath, destPath, fullName);
     } else {
-      // Read file content and replace placeholders
       const content = fs.readFileSync(srcPath, 'utf8');
-      const updatedContent = content.replace(/{{SDK_NAME}}/g, sdkName);
-      fs.writeFileSync(destPath, updatedContent); // Write the updated content to destination
+      const updatedContent = content.replace(/{{SDK_NAME}}/g, fullName);
+      fs.writeFileSync(destPath, updatedContent);
     }
   }
 };
 
-// Main function
+const parseName = (input: string) => {
+  if (input.startsWith('@')) {
+    const [org, sdk] = input.split('/');
+    if (!sdk) {
+      throw new Error('Invalid input format. Use @organization/sdk or just sdk.');
+    }
+    return { organization: org, sdkName: sdk };
+  }
+  return { organization: '', sdkName: input };
+};
+
 const main = async () => {
-  // Check if SDK name is provided via command line arguments
   const args = process.argv.slice(2);
+  let organization: string | undefined;
   let sdkName: string;
 
-  if (args.length > 0 && args[0]) {
-    // Use the first argument as the SDK name
-    sdkName = args[0];
-    if (!/^[a-zA-Z0-9-_]+$/.test(sdkName)) {
-      console.error(chalk.red('Invalid SDK name. Use only letters, numbers, dashes, and underscores.'));
+  if (args.length > 0) {
+    try {
+      ({ organization, sdkName } = parseName(args[0] as string));
+    } catch (error: unknown) {
+      console.error(chalk.red((error as Error).message));
       process.exit(1);
     }
   } else {
-    // Prompt for SDK name if not provided
     const answers = await inquirer.prompt([
       {
         type: 'input',
-        name: 'sdkName',
-        message: 'Enter the SDK name:',
-        validate: (input) =>
-          /^[a-zA-Z0-9-_]+$/.test(input) ? true : 'Invalid name. Use only letters, numbers, dashes, and underscores.',
+        name: 'fullName',
+        message: 'Enter the full name (e.g., @organization/sdk) or just the SDK name:',
+        validate: (input) => {
+          try {
+            parseName(input);
+            return true;
+          } catch (error: unknown) {
+            return (error as Error).message;
+          }
+        },
       },
     ]);
-    sdkName = answers.sdkName;
+    ({ organization, sdkName } = parseName(answers.fullName));
   }
 
-  const projectName = `${sdkName}`;
+  const fullName = organization ? `${organization}/${sdkName}` : sdkName;
+  const projectName = organization ? `${organization.replace('@', '')}-${sdkName}` : sdkName;
   const targetDir = path.resolve(process.cwd(), projectName);
 
   if (fs.existsSync(targetDir)) {
@@ -85,11 +99,9 @@ const main = async () => {
   const spinner = ora(`Creating project ${projectName}...`).start();
 
   try {
-    // Step 1: Copy template files with dynamic replacement
     const templateDir = path.resolve(__dirname, '../template');
-    copyTemplate(templateDir, targetDir, sdkName);
+    copyTemplate(templateDir, targetDir, fullName);
 
-    // Step 2: Install dependencies
     spinner.text = 'Installing dependencies...';
     runCommand('pnpm install', targetDir);
 
@@ -100,11 +112,9 @@ const main = async () => {
     spinner.text = 'Initializing git...';
     runCommand('git init', targetDir);
 
-    // Setup Husky
     spinner.text = 'Setting up Husky...';
     runCommand('pnpm exec husky init', targetDir);
 
-    // Add pre-commit hook
     const preCommitHook = `#!/bin/sh
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
