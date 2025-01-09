@@ -1,5 +1,11 @@
 # create-ts-sdk
 
+## 1.2.0
+
+### Minor Changes
+
+- d461d1e: Update CI/CD workflows to allow tests to pass with no tests present
+
 ## 1.1.1
 
 ### Patch Changes
