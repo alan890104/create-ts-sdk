@@ -1,5 +1,11 @@
 # create-ts-sdk
 
+## 1.0.3
+
+### Patch Changes
+
+- 348de1d: Add documentation generation script and GitHub Actions workflow for site build
+
 ## 1.0.2
 
 ### Patch Changes
