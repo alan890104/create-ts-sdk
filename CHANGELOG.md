@@ -1,5 +1,11 @@
 # create-ts-sdk
 
+## 1.1.0
+
+### Minor Changes
+
+- fcdfa37: Allow to input organization name while creating the project
+
 ## 1.0.3
 
 ### Patch Changes
