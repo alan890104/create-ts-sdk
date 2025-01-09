@@ -1,5 +1,11 @@
 # create-ts-sdk
 
+## 1.1.1
+
+### Patch Changes
+
+- 0acb3f0: Update package.json to include additional files in the distribution
+
 ## 1.1.0
 
 ### Minor Changes
